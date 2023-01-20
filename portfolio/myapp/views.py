@@ -1,7 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
-
+from django.contrib import messages
 # Create your views here.
 def Home(request):
     return render(request, "index.html")
@@ -21,15 +21,33 @@ def HandleSignup(request):
         user_password=request.POST.get('pass1')
         confirm_password=request.POST.get('pass2')
         if user_password!=confirm_password:
-            return HttpResponse("password not matching")
+            messages.warning(request, "Password Incorrect")
+            return redirect('/signup')
         
         if len(user_password)<5:
-            return HttpResponse("password must be greater then 5")
+            messages.warning(request, "Password Must be Greater then 4 chars")
+            return redirect('/signup')
+
+        try:
+            if User.objects.get(username=email):
+                messages.error(request, "Email is already taken")
+                return redirect('/signup')
+
+        except:
+            pass    
+        try:
+            if User.objects.get(email=email):
+                messages.error(request, "Email is already taken")
+                return redirect('/signup')
+
+        except:
+            pass    
 
         myuser=User.objects.create_user(email,email,user_password)
         myuser.first_name=first_name
         myuser.last_name=last_name
         myuser.save()
+        messages.success(request, "Signup Success Please Login")
         return redirect('/login')
         # print(first_name,last_name,email,user_password,confirm_password)
 
@@ -37,4 +55,23 @@ def HandleSignup(request):
     return render(request, "signup.html")
 
 def HandleLogin(request):
+    if request.method=="POST":
+        email=request.POST.get('email')
+        user_password=request.POST.get('pass1') 
+        # print(email,user_password)
+        myuser=authenticate(username=email,password=user_password)
+        if myuser is not None:
+            login(request, myuser)
+            messages.info(request, f"Login Success Welcome")
+            return redirect("/")
+        else:
+            messages.error(request, "Invalid Credentials")
+            return redirect("/login")
+
     return render(request, "login.html")
+
+
+def handleLogout(request):
+    logout(request)
+    messages.success(request, "logout Success")
+    return redirect("/login")

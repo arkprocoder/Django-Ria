@@ -5,7 +5,16 @@ Home
 {% block body %}
      
 <div class="container">
-    <h1>Welocme to Home Page</h1>
+    
+{% for message in messages %}
+
+<div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>{{message}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  {% endfor %}
+    <h1>Welcome to Home Page</h1>
 </div>
 
 {% endblock body %}

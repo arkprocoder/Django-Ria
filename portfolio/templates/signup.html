@@ -31,6 +31,18 @@ Sign-up
               <div class="card-body">
 <h2 class="text-warning bg-dark p-3 text-center">Sign Up</h2>
 
+
+{% for message in messages %}
+
+<div class="alert alert-{{message.tags}} alert-dismissible fade show" role="alert">
+    <strong>{{message}}</strong>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  {% endfor %}
+
+
+
                 <form action="/signup" method="post">{% csrf_token %}
 
 
