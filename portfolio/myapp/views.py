@@ -2,7 +2,7 @@ from django.shortcuts import render,HttpResponse,redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
-from myapp.models import Contact
+from myapp.models import Contact,Blogs
 # Create your views here.
 def Home(request):
     return render(request, "index.html")
@@ -90,3 +90,25 @@ def contact(request):
         messages.success(request, f"Thanks for contacting us {name}. We will get back you soon")
         return redirect("/contact")
     return render(request, "contact.html")
+
+def handleBlog(request):
+    blog=Blogs.objects.all()
+    context={
+        "blogPosts":blog
+    }
+    return render(request, "blog.html",context)
+
+
+def handleSearch(request):
+    query=request.GET['search']
+    if len(query)>100:
+        allPosts=Blogs.objects.none()
+    else:
+        allPostsTitle=Blogs.objects.filter(title__icontains=query)
+        allPostsDescription=Blogs.objects.filter(description__icontains=query)
+        allPosts=allPostsTitle.union(allPostsDescription)
+    if allPosts.count()==0:
+        messages.warning(request,"No Search Results")
+    params={'allPosts':allPosts,'query':query}
+
+    return render(request,'search.html',params)
